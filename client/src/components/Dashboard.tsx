@@ -87,7 +87,19 @@ const Dashboard = () => {
         membershipBreakdown: breakdownRes.success ? breakdownRes.breakdown : [],
         filters: {
           locations: locationsRes.success ? locationsRes.locations : [],
-          leadSources: [],
+          leadSources: [
+            "Manual",
+            "API",
+            "Bulk Import",
+            "Email",
+            "Lead Suggestion",
+            "Segment Integration",
+            "CustomerIO Integration",
+            "Calendly Integration",
+            "AI",
+            "WhatsApp",
+            "Web Form",
+          ],
           funnelTypes: [],
         },
       };
