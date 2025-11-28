@@ -68,13 +68,14 @@ const Dashboard = () => {
     setLoading(true);
 
     try {
-      const [leadsRes, appointmentsRes, membershipsRes, breakdownRes, locationsRes] =
+      const [leadsRes, appointmentsRes, membershipsRes, breakdownRes, locationsRes, funnelTypesRes] =
         await Promise.all([
           fetch(`${API_BASE_URL}/total-leads`).then(r => r.json()),
           fetch(`${API_BASE_URL}/appointments`).then(r => r.json()),
           fetch(`${API_BASE_URL}/memberships-closed`).then(r => r.json()),
           fetch(`${API_BASE_URL}/membership-breakdown`).then(r => r.json()),
           fetch(`${API_BASE_URL}/locations`).then(r => r.json()),
+          fetch(`${API_BASE_URL}/funnel-types`).then(r => r.json()),
         ]);
 
       const dashboardData: DashboardData = {
@@ -100,7 +101,7 @@ const Dashboard = () => {
             "WhatsApp",
             "Web Form",
           ],
-          funnelTypes: [],
+          funnelTypes: funnelTypesRes.success ? funnelTypesRes.uniqueValues : [],
         },
       };
 
