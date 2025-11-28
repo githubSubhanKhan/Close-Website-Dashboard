@@ -68,7 +68,7 @@ const Dashboard = () => {
     setLoading(true);
 
     try {
-      const [leadsRes, appointmentsRes, membershipsRes, breakdownRes, locationsRes, funnelTypesRes] =
+      const [leadsRes, appointmentsRes, membershipsRes, breakdownRes, locationsRes, funnelTypesRes, leadSourcesRes] =
         await Promise.all([
           fetch(`${API_BASE_URL}/total-leads`).then(r => r.json()),
           fetch(`${API_BASE_URL}/appointments`).then(r => r.json()),
@@ -76,6 +76,7 @@ const Dashboard = () => {
           fetch(`${API_BASE_URL}/membership-breakdown`).then(r => r.json()),
           fetch(`${API_BASE_URL}/locations`).then(r => r.json()),
           fetch(`${API_BASE_URL}/funnel-types`).then(r => r.json()),
+          fetch(`${API_BASE_URL}/lead-sources`).then(r => r.json()),
         ]);
 
       const dashboardData: DashboardData = {
@@ -88,19 +89,7 @@ const Dashboard = () => {
         membershipBreakdown: breakdownRes.success ? breakdownRes.breakdown : [],
         filters: {
           locations: locationsRes.success ? locationsRes.locations : [],
-          leadSources: [
-            "Manual",
-            "API",
-            "Bulk Import",
-            "Email",
-            "Lead Suggestion",
-            "Segment Integration",
-            "CustomerIO Integration",
-            "Calendly Integration",
-            "AI",
-            "WhatsApp",
-            "Web Form",
-          ],
+          leadSources: leadSourcesRes.success ? leadSourcesRes.uniqueValues : [],
           funnelTypes: funnelTypesRes.success ? funnelTypesRes.uniqueValues : [],
         },
       };
@@ -171,8 +160,8 @@ const Dashboard = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">All</SelectItem>
-              {data.filters.leadSources.map((src) => (
-                <SelectItem key={src} value={src}>{src}</SelectItem>
+              {data.filters.leadSources.map((f) => (
+                <SelectItem key={f} value={f}>{f}</SelectItem>
               ))}
             </SelectContent>
           </Select>

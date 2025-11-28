@@ -173,6 +173,36 @@ router.get("/funnel-types", async (req, res) => {
   }
 });
 
+router.get("/lead-sources", async (req, res) => {
+  try {
+    const leads = await fetchAllCloseRecords('/lead/', 200); // already array
+    const allValues = [];
+
+    for (const lead of leads) {
+      if (!lead.opportunities?.length) continue;
+
+      for (const opp of lead.opportunities) {
+        const val = opp["custom.cf_IlDxYq6z1N5djnZtgsAxWRHuNIKzd10fe1t3fDAMiPX"];
+        if (val) allValues.push(val);
+      }
+    }
+
+    const uniqueValues = [...new Set(allValues)]; // unique values only
+
+    return res.json({
+      success: true,
+      uniqueValues,
+    });
+
+  } catch (err) {
+    console.error("Error:", err);
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+});
+
 router.get('/membership-breakdown', async (req, res) => {
   try {
     const memberships = await closeAPIRequest('/opportunity/', {
