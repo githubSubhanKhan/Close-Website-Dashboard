@@ -34,6 +34,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import LoadingAnimation from "./LoadingAnimation";
 
 const API_BASE_URL = "http://localhost:5000/api/close";
 
@@ -58,6 +59,7 @@ interface DashboardData {
 const Dashboard = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   // Filters
   const [selectedLocation, setSelectedLocation] = useState("All");
@@ -66,17 +68,25 @@ const Dashboard = () => {
 
   const fetchData = async () => {
     setLoading(true);
+    setLoadingProgress(0);
 
     try {
+      const totalAPIs = 7; // Total number of API calls
+      let completed = 0;
+
+      const updateProgress = () => {
+        completed++;
+        setLoadingProgress((completed / totalAPIs) * 100);
+      };
       const [leadsRes, appointmentsRes, membershipsRes, breakdownRes, locationsRes, funnelTypesRes, leadSourcesRes] =
         await Promise.all([
-          fetch(`${API_BASE_URL}/total-leads`).then(r => r.json()),
-          fetch(`${API_BASE_URL}/appointments`).then(r => r.json()),
-          fetch(`${API_BASE_URL}/memberships-closed`).then(r => r.json()),
-          fetch(`${API_BASE_URL}/membership-breakdown`).then(r => r.json()),
-          fetch(`${API_BASE_URL}/locations`).then(r => r.json()),
-          fetch(`${API_BASE_URL}/funnel-types`).then(r => r.json()),
-          fetch(`${API_BASE_URL}/lead-sources`).then(r => r.json()),
+          fetch(`${API_BASE_URL}/total-leads`).then(r => r.json()).then(d => { updateProgress(); return d; }),
+          fetch(`${API_BASE_URL}/appointments`).then(r => r.json()).then(d => { updateProgress(); return d; }),
+          fetch(`${API_BASE_URL}/memberships-closed`).then(r => r.json()).then(d => { updateProgress(); return d; }),
+          fetch(`${API_BASE_URL}/membership-breakdown`).then(r => r.json()).then(d => { updateProgress(); return d; }),
+          fetch(`${API_BASE_URL}/locations`).then(r => r.json()).then(d => { updateProgress(); return d; }),
+          fetch(`${API_BASE_URL}/funnel-types`).then(r => r.json()).then(d => { updateProgress(); return d; }),
+          fetch(`${API_BASE_URL}/lead-sources`).then(r => r.json()).then(d => { updateProgress(); return d; }),
         ]);
 
       const dashboardData: DashboardData = {
@@ -109,11 +119,7 @@ const Dashboard = () => {
   }, []);
 
   if (loading || !data) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <RefreshCw className="animate-spin h-10 w-10 text-redcustom" />
-      </div>
-    );
+    return <LoadingAnimation progress={loadingProgress} />
   }
 
   return (
