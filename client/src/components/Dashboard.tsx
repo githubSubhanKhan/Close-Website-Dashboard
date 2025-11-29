@@ -55,10 +55,16 @@ interface DashboardData {
   };
 }
 
+type FilterParams = {
+  location?: string;
+  leadSource?: string;
+  funnelType?: string;
+};
 
 const Dashboard = () => {
   const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
   // Filters
@@ -66,8 +72,17 @@ const Dashboard = () => {
   const [selectedLeadSource, setSelectedLeadSource] = useState("All");
   const [selectedFunnelType, setSelectedFunnelType] = useState("All");
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (filters?: FilterParams) => {
+    const effectiveFilters: FilterParams = {
+      location: filters?.location ?? selectedLocation,
+      leadSource: filters?.leadSource ?? selectedLeadSource,
+      funnelType: filters?.funnelType ?? selectedFunnelType,
+    };
+    if (!data) {
+      setInitialLoading(true);
+    } else {
+      setRefreshing(true);
+    }
     setLoadingProgress(0);
 
     try {
@@ -78,11 +93,17 @@ const Dashboard = () => {
         completed++;
         setLoadingProgress((completed / totalAPIs) * 100);
       };
+      const query = new URLSearchParams({
+        location: effectiveFilters.location || "All",
+        leadSource: effectiveFilters.leadSource || "All",
+        funnelType: effectiveFilters.funnelType || "All",
+      }).toString();
+
       const [leadsRes, appointmentsRes, membershipsRes, breakdownRes, locationsRes, funnelTypesRes, leadSourcesRes] =
         await Promise.all([
-          fetch(`${API_BASE_URL}/total-leads`).then(r => r.json()).then(d => { updateProgress(); return d; }),
+          fetch(`${API_BASE_URL}/total-leads?${query}`).then(r => r.json()).then(d => { updateProgress(); return d; }),
           fetch(`${API_BASE_URL}/appointments`).then(r => r.json()).then(d => { updateProgress(); return d; }),
-          fetch(`${API_BASE_URL}/memberships-closed`).then(r => r.json()).then(d => { updateProgress(); return d; }),
+          fetch(`${API_BASE_URL}/memberships-closed?${query}`).then(r => r.json()).then(d => { updateProgress(); return d; }),
           fetch(`${API_BASE_URL}/membership-breakdown`).then(r => r.json()).then(d => { updateProgress(); return d; }),
           fetch(`${API_BASE_URL}/locations`).then(r => r.json()).then(d => { updateProgress(); return d; }),
           fetch(`${API_BASE_URL}/funnel-types`).then(r => r.json()).then(d => { updateProgress(); return d; }),
@@ -107,19 +128,34 @@ const Dashboard = () => {
       setData(dashboardData);
     } catch (err) {
       console.error("Dashboard fetch error:", err);
+    } finally {
+      setInitialLoading(false);
+      setRefreshing(false);
     }
+  };
 
-    setLoading(false);
+  const clearFilters = () => {
+    setSelectedLocation("All");
+    setSelectedLeadSource("All");
+    setSelectedFunnelType("All");
   };
 
 
-
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData({
+      location: selectedLocation,
+      leadSource: selectedLeadSource,
+      funnelType: selectedFunnelType,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLocation, selectedLeadSource, selectedFunnelType]);
 
-  if (loading || !data) {
-    return <LoadingAnimation progress={loadingProgress} />
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
+
+  if (initialLoading || !data) {
+    return <LoadingAnimation progress={loadingProgress} />;
   }
 
   return (
@@ -133,8 +169,9 @@ const Dashboard = () => {
         </div>
 
         <div className="flex gap-2">
-          <Button onClick={fetchData} className="text-redcustom border-redcustom" variant="outline">
-            <RefreshCw className="w-4 h-4 mr-2" /> Refresh
+          <Button onClick={() => fetchData()} className="text-redcustom border-redcustom" variant="outline" disabled={refreshing}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
           </Button>
           <Button className="bg-redcustom text-whitecustom">
             <Download className="w-4 h-4 mr-2" /> Export
@@ -146,7 +183,7 @@ const Dashboard = () => {
       <Card>
         <CardContent className="pt-6 flex flex-wrap gap-4">
           {/* Location */}
-          <Select onValueChange={setSelectedLocation}>
+          <Select value={selectedLocation} onValueChange={setSelectedLocation}>
             <SelectTrigger className="w-[200px] border-gray-300">
               <SelectValue placeholder="Location" />
             </SelectTrigger>
@@ -160,7 +197,7 @@ const Dashboard = () => {
 
 
           {/* Lead Source */}
-          <Select onValueChange={setSelectedLeadSource}>
+          <Select value={selectedLeadSource} onValueChange={setSelectedLeadSource}>
             <SelectTrigger className="w-[200px] border-gray-300">
               <SelectValue placeholder="Lead Source" />
             </SelectTrigger>
@@ -173,7 +210,7 @@ const Dashboard = () => {
           </Select>
 
           {/* Funnel Type */}
-          <Select onValueChange={setSelectedFunnelType}>
+          <Select value={selectedFunnelType} onValueChange={setSelectedFunnelType}>
             <SelectTrigger className="w-[200px] border-gray-300">
               <SelectValue placeholder="Funnel Type" />
             </SelectTrigger>
@@ -184,6 +221,10 @@ const Dashboard = () => {
               ))}
             </SelectContent>
           </Select>
+          <Button variant="outline" onClick={clearFilters}>
+            Clear Filters
+          </Button>
+
         </CardContent>
       </Card>
 

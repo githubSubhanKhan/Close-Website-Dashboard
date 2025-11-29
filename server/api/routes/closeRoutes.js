@@ -198,29 +198,6 @@ router.get('/memberships-closed', async (req, res) => {
   }
 });
 
-// Test: fetch only 1 opportunity from Close CRM
-router.get("/test-opportunity", async (req, res) => {
-  try {
-    const response = await closeAPIRequest("/opportunity/", {
-      _limit: 1,   // ✅ fetch only one record
-    });
-
-    return res.json({
-      success: true,
-      count: response?.data?.length || 0,
-      opportunity: response?.data?.[0] || null,
-    });
-
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      error: "Failed to fetch test opportunity",
-      message: error.message,
-    });
-  }
-});
-
-
 router.get("/funnel-types", async (req, res) => {
   try {
     const leads = await fetchAllCloseRecords('/lead/', 200); // already array
