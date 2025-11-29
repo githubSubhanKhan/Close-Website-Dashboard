@@ -33,6 +33,8 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   Legend,
+  LineChart,
+  Line,
 } from "recharts";
 import LoadingAnimation from "./LoadingAnimation";
 
@@ -174,6 +176,12 @@ const Dashboard = () => {
     return <LoadingAnimation progress={loadingProgress} />;
   }
 
+  const conversionData = [
+    { label: "Total Leads", value: data.totals.totalLeads },
+    { label: "Memberships Closed", value: data.totals.membershipsClosed }
+  ];
+
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* HEADER */}
@@ -304,6 +312,27 @@ const Dashboard = () => {
                 <Legend />
                 <Bar dataKey="count" fill="#880015" />
               </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5" />
+              Lead → Membership Conversion
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={conversionData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="label" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="value" stroke="#B8001F" strokeWidth={3} />
+              </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
