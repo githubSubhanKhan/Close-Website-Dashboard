@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 
-const CLOSE_API_KEY = process.env.CLOSE_API_KEY;
+const CLOSE_API_KEY = "api_0wNmJnH459tU6ILauwWvYH.7jFQUFpFk3ZdkRbrozTo9G";
 const CLOSE_API_BASE_URL = 'https://api.close.com/api/v1';
 
 // Generic Close API GET wrapper
