@@ -213,7 +213,7 @@ const Dashboard = () => {
               <SelectValue placeholder="Location" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="All">All</SelectItem>
+              <SelectItem value="All">Pipeline</SelectItem>
               {data.filters.locations.map((loc) => (
                 <SelectItem key={loc} value={loc}>
                   {loc}
@@ -227,7 +227,7 @@ const Dashboard = () => {
               <SelectValue placeholder="Lead Source" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="All">All</SelectItem>
+              <SelectItem value="All">Lead Source</SelectItem>
               {data.filters.leadSources.map((f) => (
                 <SelectItem key={f} value={f}>
                   {f}
@@ -241,7 +241,7 @@ const Dashboard = () => {
               <SelectValue placeholder="Funnel Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="All">All</SelectItem>
+              <SelectItem value="All">Tags</SelectItem>
               {data.filters.funnelTypes.map((f) => (
                 <SelectItem key={f} value={f}>
                   {f}
