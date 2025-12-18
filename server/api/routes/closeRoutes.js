@@ -73,6 +73,28 @@ router.get("/locations", async (req, res) => {
   }
 });
 
+router.get("/leads-by-location", async (req, res) => {
+  try {
+    const allLeads = await fetchAllCloseRecords("/lead/");
+    const pipelines = await fetchAllCloseRecords("/pipeline/");
+
+    const uniqueLocations = [...new Set(pipelines.map(p => p.name).filter(Boolean))];
+
+    const leadsByLocation = uniqueLocations.map(loc => ({
+      name: loc,
+      value: allLeads.filter(lead =>
+        lead?.opportunities?.some(op => op?.pipeline_name?.toLowerCase() === loc.toLowerCase())
+      ).length,
+    }));
+
+    res.json({ success: true, data: leadsByLocation });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+
 router.get('/dashboard-data', async (req, res) => {
   try {
     const data = await closeAPIRequest('/lead/', {

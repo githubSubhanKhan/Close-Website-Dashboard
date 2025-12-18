@@ -41,7 +41,7 @@ import LoadingAnimation from "./LoadingAnimation";
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
-const COLORS = ["#880015", "#B8001F", "#E60026", "#FF3347", "#FF6B7A"];
+const COLORS = ["#6B0011", "#880015", "#A5001A", "#B8001F", "#E60026", "#FF3347", "#FF5266", "#FF6B7A", "#FF8A96"];
 
 interface DashboardData {
   totals: {
@@ -51,6 +51,7 @@ interface DashboardData {
     insuranceOnly: number;
   };
   membershipBreakdown: { price: string; count: number }[];
+  leadsByLocation: { name: string; value: number }[];
   filters: {
     locations: string[];
     leadSources: string[];
@@ -97,7 +98,7 @@ const Dashboard = () => {
     setLoadingProgress(0);
 
     try {
-      const totalAPIs = 7; // 6 endpoints now
+      const totalAPIs = 8; // 6 endpoints now
       let completed = 0;
 
       const updateProgress = () => {
@@ -121,6 +122,7 @@ const Dashboard = () => {
         locationsRes,
         funnelTypesRes,
         leadSourcesRes,
+        leadsByLocationRes,
       ] = await Promise.all([
         fetch(`${API_BASE_URL}/total-leads?${query}`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
         fetch(`${API_BASE_URL}/appointment-insurance-stats?${query}&type=appointments`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
@@ -129,6 +131,7 @@ const Dashboard = () => {
         fetch(`${API_BASE_URL}/locations`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
         fetch(`${API_BASE_URL}/funnel-types`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
         fetch(`${API_BASE_URL}/lead-sources`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
+        fetch(`${API_BASE_URL}/leads-by-location`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
       ]);
 
       // ✅ BUILD BREAKDOWN FROM MEMBERSHIPS
@@ -154,6 +157,7 @@ const Dashboard = () => {
         },
 
         membershipBreakdown: computedBreakdown,
+        leadsByLocation: leadsByLocationRes.success ? leadsByLocationRes.data : [],
 
         filters: {
           locations: locationsRes.success ? locationsRes.locations : [],
@@ -319,7 +323,7 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <PieIcon className="w-5 h-5" />
-              Membership Breakdown
+              Leads by Location
             </CardTitle>
           </CardHeader>
 
@@ -327,15 +331,15 @@ const Dashboard = () => {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={data.membershipBreakdown}
+                  data={data.leadsByLocation}
                   cx="50%"
                   cy="50%"
                   outerRadius={90}
-                  dataKey="count"
-                  nameKey="price"
+                  dataKey="value"
+                  nameKey="name"
                   label
                 >
-                  {data.membershipBreakdown.map((_, i) => (
+                  {data.leadsByLocation.map((_, i) => (
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
