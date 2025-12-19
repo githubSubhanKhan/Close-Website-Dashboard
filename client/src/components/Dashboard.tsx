@@ -147,7 +147,7 @@ const Dashboard = () => {
         fetch(`${API_BASE_URL}/appointment-insurance-stats?${query}&type=appointments`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
         fetch(`${API_BASE_URL}/appointment-insurance-stats?${query}&type=insurance`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
         fetch(`${API_BASE_URL}/memberships-closed?${query}`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
-        fetch(`${API_BASE_URL}/locations`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
+        fetch(`${API_BASE_URL}/locations-filtered`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
         fetch(`${API_BASE_URL}/funnel-types`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
         fetch(`${API_BASE_URL}/lead-sources`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
         fetch(`${API_BASE_URL}/leads-by-location`).then((r) => r.json()).then(d => { updateProgress(); return d; }),

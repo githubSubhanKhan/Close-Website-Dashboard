@@ -73,6 +73,38 @@ router.get("/locations", async (req, res) => {
   }
 });
 
+router.get("/locations-filtered", async (req, res) => {
+  try {
+    const pipelines = await fetchAllCloseRecords("/pipeline/");
+
+    // Allowed locations
+    const allowedLocations = [
+      "Green Bay Sales",
+      "Barrington Sales",
+      "Greenwood Sales"
+    ];
+
+    const locations = pipelines
+      .map(p => p.name)
+      .filter(name => allowedLocations.includes(name));
+
+    const uniqueLocations = [...new Set(locations)];
+
+    res.json({
+      success: true,
+      locations: uniqueLocations
+    });
+
+  } catch (error) {
+    console.error("Error fetching filtered pipeline locations:", error.message);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+
 router.get("/leads-by-location", async (req, res) => {
   try {
     const allLeads = await fetchAllCloseRecords("/lead/");
