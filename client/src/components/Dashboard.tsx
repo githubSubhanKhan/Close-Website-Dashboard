@@ -180,14 +180,14 @@ const Dashboard = () => {
     setSelectedLeadSource("All");
     setSelectedFunnelType("All");
     setFromDate("");
-  setToDate("");
-  fetchData({
-    location: "All",
-    leadSource: "All",
-    funnelType: "All",
-    fromDate: "",
-    toDate: "",
-  })
+    setToDate("");
+    fetchData({
+      location: "All",
+      leadSource: "All",
+      funnelType: "All",
+      fromDate: "",
+      toDate: "",
+    })
   };
 
   useEffect(() => {
@@ -232,7 +232,7 @@ const Dashboard = () => {
 
       {/* FILTERS */}
       <Card>
-        <CardContent className="pt-6 flex flex-wrap gap-4">
+        <CardContent className="pt-6 flex flex-wrap gap-3">
           <Select value={selectedLocation} onValueChange={setSelectedLocation}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Location" />
@@ -275,30 +275,30 @@ const Dashboard = () => {
             </SelectContent>
           </Select>
 
-          <div className="flex flex-col gap-1">
-  <Label htmlFor="fromDate">From Date</Label>
-  <input
-    id="fromDate"
-    type="date"
-    value={fromDate}
-    onChange={(e) => setFromDate(e.target.value)}
-    className="border rounded-md px-3 py-2 text-sm"
-  />
-</div>
+          <div className="flex items-center gap-1">
+            <Label htmlFor="fromDate" className="min-w-[30px] text-sm">From</Label>
+            <input
+              id="fromDate"
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="border rounded-md px-1 py-2 text-sm"
+            />
+          </div>
 
-<div className="flex flex-col gap-1">
-  <Label htmlFor="toDate">To Date</Label>
-  <input
-    id="toDate"
-    type="date"
-    value={toDate}
-    onChange={(e) => setToDate(e.target.value)}
-    className="border rounded-md px-3 py-2 text-sm"
-  />
-</div>
+          <div className="flex items-center gap-1">
+            <Label htmlFor="toDate" className="min-w-[30px] text-sm">To</Label>
+            <input
+              id="toDate"
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="border rounded-md px-1 py-2 text-sm"
+            />
+          </div>
 
 
-          <Button onClick={() => fetchData()} disabled={fromDate==="" && toDate===""}>
+          <Button onClick={() => fetchData()} disabled={fromDate === "" && toDate === ""}>
             Set
           </Button>
 
@@ -361,7 +361,7 @@ const Dashboard = () => {
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={data.leadsByLocation || []}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name"/>
+                <XAxis dataKey="name" />
                 <YAxis allowDecimals={false} />
                 <Tooltip />
                 <Legend />
