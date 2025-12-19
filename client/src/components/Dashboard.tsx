@@ -277,68 +277,77 @@ const Dashboard = () => {
 
       {/* FILTERS */}
       <Card>
-        <CardContent className="pt-6 flex flex-wrap gap-3">
-          <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Location" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">Pipeline</SelectItem>
-              {data.filters.locations.map((loc) => (
-                <SelectItem key={loc} value={loc}>
-                  {loc}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <CardContent className="pt-6 flex flex-wrap gap-2 items-end">
+          <div className="flex flex-col gap-1">
+            <Label className="text-sm">Pipeline</Label>
+            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                {data.filters.locations.map((loc) => (
+                  <SelectItem key={loc} value={loc}>
+                    {loc}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select value={selectedLeadSource} onValueChange={setSelectedLeadSource}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Lead Source" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">Lead Source</SelectItem>
-              {data.filters.leadSources.map((f) => (
-                <SelectItem key={f} value={f}>
-                  {f}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col gap-1">
+            <Label className="text-sm">Lead Source</Label>
+            <Select value={selectedLeadSource} onValueChange={setSelectedLeadSource}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                {data.filters.leadSources.map((f) => (
+                  <SelectItem key={f} value={f}>
+                    {f}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select value={selectedFunnelType} onValueChange={setSelectedFunnelType}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Funnel Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">Tags</SelectItem>
-              {data.filters.funnelTypes.map((f) => (
-                <SelectItem key={f} value={f}>
-                  {f}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col gap-1">
+            <Label className="text-sm">Tags</Label>
+            <Select value={selectedFunnelType} onValueChange={setSelectedFunnelType}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All</SelectItem>
+                {data.filters.funnelTypes.map((f) => (
+                  <SelectItem key={f} value={f}>
+                    {f}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <div className="flex items-center gap-1">
-            <Label htmlFor="fromDate" className="min-w-[30px] text-sm">From</Label>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="fromDate" className="text-sm">From</Label>
             <input
               id="fromDate"
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="border rounded-md px-1 py-2 text-sm"
+              className="border rounded-md px-2 py-2 text-sm w-[160px]"
             />
           </div>
 
-          <div className="flex items-center gap-1">
-            <Label htmlFor="toDate" className="min-w-[30px] text-sm">To</Label>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="toDate" className="text-sm">To</Label>
             <input
               id="toDate"
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="border rounded-md px-1 py-2 text-sm"
+              className="border rounded-md px-2 py-2 text-sm w-[160px]"
             />
           </div>
 
