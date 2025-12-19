@@ -110,7 +110,17 @@ router.get("/leads-by-location", async (req, res) => {
     const allLeads = await fetchAllCloseRecords("/lead/");
     const pipelines = await fetchAllCloseRecords("/pipeline/");
 
-    const uniqueLocations = [...new Set(pipelines.map(p => p.name).filter(Boolean))];
+    const allowedLocations = [
+      "Green Bay Sales",
+      "Barrington Sales",
+      "Greenwood Sales"
+    ];
+
+    const filteredLocations = pipelines
+      .map(p => p.name)
+      .filter(name => allowedLocations.includes(name));
+
+    const uniqueLocations = [...new Set(filteredLocations)];
 
     const leadsByLocation = uniqueLocations.map(loc => ({
       name: loc,
