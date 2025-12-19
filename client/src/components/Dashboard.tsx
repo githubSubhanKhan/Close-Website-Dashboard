@@ -208,6 +208,22 @@ const Dashboard = () => {
     { label: "Memberships Closed", value: data.totals.membershipsClosed }
   ];
 
+  const funnelData = [
+    {
+      stage: "Total Leads",
+      value: data.totals.totalLeads,
+    },
+    {
+      stage: "Appointments Booked",
+      value: data.totals.appointmentsBooked,
+    },
+    {
+      stage: "Memberships Closed",
+      value: data.totals.membershipsClosed,
+    },
+  ];
+
+
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -322,29 +338,38 @@ const Dashboard = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <PieIcon className="w-5 h-5" />
-              Leads by Location
+              <BarChart3 className="w-5 h-5" />
+              Lead Conversion Funnel
             </CardTitle>
           </CardHeader>
 
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={data.leadsByLocation}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={90}
-                  dataKey="value"
-                  nameKey="name"
-                  label
-                >
-                  {data.leadsByLocation.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
+              <BarChart
+                layout="vertical"
+                data={funnelData}
+                margin={{ top: 20, right: 30, left: 80, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis
+                  type="category"
+                  dataKey="stage"
+                  width={150}
+                />
                 <Tooltip />
-              </PieChart>
+                <Bar
+                  dataKey="value"
+                  radius={[0, 10, 10, 0]}
+                >
+                  {funnelData.map((_, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
