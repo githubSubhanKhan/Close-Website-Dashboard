@@ -274,6 +274,88 @@ const to = toDate ? new Date(toDate) : null;
   }
 });
 
+const ALLOWED_STATUSES = [
+  "Initial Signup",
+  "Contacting",
+  "Contacting 2",
+  "Contacting 3",
+  "Value",
+  "Per-Appointment",
+  "Showed-Pending",
+  "Won-Insurance Only",
+  "Closed-Lost",
+];
+
+router.get('/opportunities-status-count', async (req, res) => {
+  try {
+    const { location, leadSource, funnelType, fromDate, toDate } = req.query;
+
+    let filteredOps = await fetchAllCloseRecords('/opportunity/');
+
+    const from = fromDate ? new Date(fromDate) : null;
+    const to = toDate ? new Date(toDate) : null;
+
+    // ---------- SAME FILTERING LOGIC ----------
+
+    if (location && location !== 'All') {
+      filteredOps = filteredOps.filter(op =>
+        op?.pipeline_name?.toLowerCase() === location.toLowerCase()
+      );
+    }
+
+    if (leadSource && leadSource !== 'All') {
+      filteredOps = filteredOps.filter(op =>
+        (op['custom.cf_IlDxYq6z1N5djnZtgsAxWRHuNIKzd10fe1t3fDAMiPX'] || '')
+          .trim()
+          .toLowerCase() === leadSource.trim().toLowerCase()
+      );
+    }
+
+    if (funnelType && funnelType !== 'All') {
+      filteredOps = filteredOps.filter(op =>
+        (op['custom.cf_lHXCz96zGWThc3ojIl0Wcld64fJv7tnzkHSnTmALQPq'] || '')
+          .trim()
+          .toLowerCase() === funnelType.trim().toLowerCase()
+      );
+    }
+
+    if (from || to) {
+      filteredOps = filteredOps.filter(op =>
+        isWithinDateRange(op.date_created, from, to)
+      );
+    }
+
+    // ---------- COUNT ONLY REQUIRED STATUS_LABELS ----------
+
+    // Initialize all statuses with 0
+    const statusCounts = ALLOWED_STATUSES.reduce((acc, status) => {
+      acc[status] = 0;
+      return acc;
+    }, {});
+
+    // Count only allowed statuses
+    filteredOps.forEach(op => {
+      const status = op?.status_label;
+      if (status && statusCounts.hasOwnProperty(status)) {
+        statusCounts[status]++;
+      }
+    });
+
+    return res.json({
+      success: true,
+      totalOpportunities: filteredOps.length,
+      statusCounts,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch opportunity status counts',
+      message: error.message,
+    });
+  }
+});
+
 router.get('/appointment-insurance-stats', async (req, res) => {
   try {
     const { location, leadSource, funnelType, type, fromDate, toDate } = req.query;

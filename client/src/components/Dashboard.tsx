@@ -43,6 +43,19 @@ const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const COLORS = ["#6B0011", "#880015", "#A5001A", "#B8001F", "#E60026", "#FF3347", "#FF5266", "#FF6B7A", "#FF8A96"];
 
+const STATUS_ORDER = [
+  "Initial Signup",
+  "Contacting",
+  "Contacting 2",
+  "Contacting 3",
+  "Value",
+  "Per-Appointment",
+  "Showed-Pending",
+  "Won-Insurance Only",
+  "Closed-Lost",
+];
+
+
 interface DashboardData {
   totals: {
     totalLeads: number;
@@ -82,6 +95,11 @@ const Dashboard = () => {
   const [selectedLeadSource, setSelectedLeadSource] = useState("All");
   const [selectedFunnelType, setSelectedFunnelType] = useState("All");
 
+  const [statusChartData, setStatusChartData] = useState<
+    { status: string; count: number }[]
+  >([]);
+
+
   const fetchData = async (filters?: FilterParams) => {
     const effectiveFilters: FilterParams = {
       location: filters?.location ?? selectedLocation,
@@ -98,7 +116,7 @@ const Dashboard = () => {
     setLoadingProgress(0);
 
     try {
-      const totalAPIs = 8; // 6 endpoints now
+      const totalAPIs = 9; // 6 endpoints now
       let completed = 0;
 
       const updateProgress = () => {
@@ -123,6 +141,7 @@ const Dashboard = () => {
         funnelTypesRes,
         leadSourcesRes,
         leadsByLocationRes,
+        statusCountRes,
       ] = await Promise.all([
         fetch(`${API_BASE_URL}/total-leads?${query}`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
         fetch(`${API_BASE_URL}/appointment-insurance-stats?${query}&type=appointments`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
@@ -132,6 +151,7 @@ const Dashboard = () => {
         fetch(`${API_BASE_URL}/funnel-types`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
         fetch(`${API_BASE_URL}/lead-sources`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
         fetch(`${API_BASE_URL}/leads-by-location`).then((r) => r.json()).then(d => { updateProgress(); return d; }),
+        fetch(`${API_BASE_URL}/opportunities-status-count?${query}`).then(r => r.json()).then(d => { updateProgress(); return d }),
       ]);
 
       // ✅ BUILD BREAKDOWN FROM MEMBERSHIPS
@@ -165,6 +185,15 @@ const Dashboard = () => {
           funnelTypes: funnelTypesRes.success ? funnelTypesRes.uniqueValues : [],
         },
       };
+      if (statusCountRes?.success) {
+        const formatted = STATUS_ORDER.map(status => ({
+          status,
+          count: statusCountRes.statusCounts?.[status] ?? 0,
+        }));
+
+        setStatusChartData(formatted);
+      }
+
 
       setData(dashboardData);
     } catch (err) {
@@ -403,20 +432,35 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
-              Lead → Membership Conversion
+              Opportunities by Status
             </CardTitle>
           </CardHeader>
 
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={conversionData}>
+            <ResponsiveContainer width="100%" height={420}>
+              <BarChart
+                layout="vertical"
+                data={statusChartData}
+                margin={{ top: 20, right: 30, left: 120, bottom: 20 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" />
-                <YAxis />
+                <XAxis type="number" allowDecimals={false} />
+                <YAxis
+                  type="category"
+                  dataKey="status"
+                  width={150}
+                  interval={0}
+                />
                 <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="value" stroke="#B8001F" strokeWidth={3} />
-              </LineChart>
+                <Bar dataKey="count" radius={[0, 10, 10, 0]}>
+                  {statusChartData.map((_, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
