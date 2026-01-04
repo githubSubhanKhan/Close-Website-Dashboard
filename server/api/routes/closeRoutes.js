@@ -164,7 +164,7 @@ router.get('/total-leads', async (req, res) => {
     let filteredLeads = allLeads;
 
     const from = fromDate ? new Date(fromDate) : null;
-const to = toDate ? new Date(toDate) : null;
+    const to = toDate ? new Date(toDate) : null;
 
     // Filter by location (pipeline_name)
     if (location && location !== "All") {
@@ -198,10 +198,10 @@ const to = toDate ? new Date(toDate) : null;
     }
 
     if (from || to) {
-  filteredLeads = filteredLeads.filter(lead =>
-    isWithinDateRange(lead.date_created, from, to)
-  );
-}
+      filteredLeads = filteredLeads.filter(lead =>
+        isWithinDateRange(lead.date_created, from, to)
+      );
+    }
 
     return res.json({
       success: true,
@@ -362,7 +362,7 @@ router.get('/memberships-closed', async (req, res) => {
     });
     let filteredMemberships = memberships.data;
     const from = fromDate ? new Date(fromDate) : null;
-const to = toDate ? new Date(toDate) : null;
+    const to = toDate ? new Date(toDate) : null;
 
     if (location && location !== "All") {
       filteredMemberships = filteredMemberships.filter(
@@ -388,10 +388,10 @@ const to = toDate ? new Date(toDate) : null;
     }
 
     if (from || to) {
-  filteredMemberships = filteredMemberships.filter(op =>
-    isWithinDateRange(op.date_created, from, to)
-  );
-}
+      filteredMemberships = filteredMemberships.filter(op =>
+        isWithinDateRange(op.date_created, from, to)
+      );
+    }
 
     return res.json({
       success: true,
@@ -499,7 +499,7 @@ router.get('/appointment-insurance-stats', async (req, res) => {
     let filteredOpportunities = allOpportunities;
 
     const from = fromDate ? new Date(fromDate) : null;
-const to = toDate ? new Date(toDate) : null;
+    const to = toDate ? new Date(toDate) : null;
 
     // Filter by location (pipeline)
     if (location && location !== "All") {
@@ -527,15 +527,25 @@ const to = toDate ? new Date(toDate) : null;
     }
 
     if (from || to) {
-  filteredOpportunities = filteredOpportunities.filter(op =>
-    isWithinDateRange(op.date_created, from, to)
-  );
-}
+      filteredOpportunities = filteredOpportunities.filter(op =>
+        isWithinDateRange(op.date_created, from, to)
+      );
+    }
 
     // Counting logic
     let count = 0;
     if (type === "appointments") {
-      count = filteredOpportunities.filter(op => op.status_label === 'Pre-Appointment').length;
+      const appointmentStatuses = [
+        'Pre-Appointment',
+        'Showed-Pending',
+        'Won - Insurance Only',
+        'Close-Won'
+      ];
+
+      count = filteredOpportunities.filter(op =>
+        appointmentStatuses.includes(op.status_label)
+      ).length;
+
     } else if (type === "insurance") {
       count = filteredOpportunities.filter(op => op.status_label === 'Won - Insurance Only').length;
     }
@@ -644,5 +654,26 @@ router.get('/membership-breakdown', async (req, res) => {
   }
 });
 
+// ----------------------- Test Routes -----------------------
+router.get('/appointments-booked-test', async (req, res) => {
+  try {
+    const memberships = await closeAPIRequest('/opportunity/', {
+      _limit: 100,
+    });
+
+    return res.json({
+      success: true,
+      total: memberships.data.length,
+      data: memberships.data
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch opportunities',
+      message: error.message
+    });
+  }
+});
 
 module.exports = router;
