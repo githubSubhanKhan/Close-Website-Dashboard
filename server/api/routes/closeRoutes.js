@@ -356,11 +356,10 @@ router.get('/appointments', async (req, res) => {
 router.get('/memberships-closed', async (req, res) => {
   try {
     const { location, leadSource, funnelType, fromDate, toDate } = req.query;
-    const memberships = await closeAPIRequest('/opportunity/', {
-      _limit: 100,
-      status_type: 'won'
-    });
-    let filteredMemberships = memberships.data;
+    const memberships = await fetchAllCloseRecords('/opportunity/');
+    let filteredMemberships = memberships.filter(
+      opp => opp.status_type === 'won'
+    );
     const from = fromDate ? new Date(fromDate) : null;
     const to = toDate ? new Date(toDate) : null;
 
@@ -389,7 +388,7 @@ router.get('/memberships-closed', async (req, res) => {
 
     if (from || to) {
       filteredMemberships = filteredMemberships.filter(op =>
-        isWithinDateRange(op.date_created, from, to)
+        isWithinDateRange(op.date_won, from, to)
       );
     }
 
